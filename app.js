@@ -1,51 +1,110 @@
-// Simulate payment on an existing Xendit Fixed Virtual Account.
-const simulateForm = document.getElementById('simulateForm');
-const apiKeyEl = document.getElementById('apiKey');
-const externalIdEl = document.getElementById('externalId');
-const amountEl = document.getElementById('amount');
+// Generic Xendit API tester — build any request (method/url/headers/auth/body)
+// and send it through a same-origin proxy to avoid browser CORS.
+const requestForm = document.getElementById('requestForm');
+const methodEl = document.getElementById('method');
+const urlEl = document.getElementById('url');
+const authTypeEl = document.getElementById('authType');
+const authValueEl = document.getElementById('authValue');
+const bodyEl = document.getElementById('body');
+const headersList = document.getElementById('headersList');
+const addHeaderBtn = document.getElementById('addHeader');
 const responseOutput = document.getElementById('responseOutput');
-const submitBtn = simulateForm.querySelector('button[type="submit"]');
+const responseMeta = document.getElementById('responseMeta');
+const submitBtn = requestForm.querySelector('button[type="submit"]');
 
-simulateForm.addEventListener('submit', async (e) => {
+function addHeaderRow(key = '', value = '') {
+  const row = document.createElement('div');
+  row.className = 'kv-row';
+  row.innerHTML = `
+    <input type="text" class="header-key" placeholder="Header name" value="${key}" />
+    <input type="text" class="header-value" placeholder="Header value" value="${value}" />
+    <button type="button" class="btn action-btn danger">×</button>
+  `;
+  row.querySelector('button').addEventListener('click', () => row.remove());
+  headersList.appendChild(row);
+}
+
+addHeaderRow('Content-Type', 'application/json');
+addHeaderBtn.addEventListener('click', () => addHeaderRow());
+
+function collectHeaders() {
+  const headers = {};
+  headersList.querySelectorAll('.kv-row').forEach((row) => {
+    const key = row.querySelector('.header-key').value.trim();
+    const value = row.querySelector('.header-value').value;
+    if (key) headers[key] = value;
+  });
+
+  const authType = authTypeEl.value;
+  const authValue = authValueEl.value.trim();
+  if (authType === 'basic' && authValue) {
+    headers['Authorization'] = 'Basic ' + btoa(authValue + ':');
+  } else if (authType === 'bearer' && authValue) {
+    headers['Authorization'] = 'Bearer ' + authValue;
+  }
+
+  return headers;
+}
+
+requestForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const apiKey = apiKeyEl.value.trim();
-  const externalId = externalIdEl.value.trim();
-  const amount = amountEl.value.trim();
+  const method = methodEl.value;
+  const url = urlEl.value.trim();
+  const headers = collectHeaders();
+  const bodyText = bodyEl.value.trim();
 
-  if (!apiKey || !externalId || !amount) {
-    responseOutput.textContent = 'Isi semua field: API Key, External ID, Amount';
+  if (!url) {
+    responseOutput.textContent = 'Isi URL request.';
     return;
   }
 
+  let body;
+  if (method !== 'GET' && bodyText) {
+    try {
+      body = JSON.parse(bodyText);
+    } catch (err) {
+      responseOutput.textContent = `Body bukan JSON valid: ${err.message}`;
+      return;
+    }
+  }
+
+  responseMeta.textContent = 'Executing...';
   responseOutput.textContent = 'Executing...';
   submitBtn.disabled = true;
 
   try {
-    const res = await fetch('/api/simulate-payment', {
+    const res = await fetch('/api/proxy', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Basic ' + btoa(apiKey + ':'),
-      },
-      body: JSON.stringify({
-        external_id: externalId,
-        amount: Number(amount),
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ method, url, headers, body }),
     });
 
     const text = await res.text();
-    let out;
+    let parsed;
     try {
-      out = JSON.stringify(JSON.parse(text), null, 2);
+      parsed = JSON.parse(text);
     } catch (e) {
-      out = text;
+      parsed = null;
     }
 
-    responseOutput.textContent = `HTTP ${res.status} ${res.statusText}\n\n${out}`;
+    if (parsed && typeof parsed.status !== 'undefined') {
+      responseMeta.textContent = `HTTP ${parsed.status} ${parsed.statusText || ''}`.trim();
+      let out = parsed.body;
+      try {
+        out = JSON.stringify(JSON.parse(parsed.body), null, 2);
+      } catch (e) {
+        // leave as raw text
+      }
+      responseOutput.textContent = out;
+    } else {
+      responseMeta.textContent = `HTTP ${res.status} ${res.statusText}`;
+      responseOutput.textContent = text;
+    }
   } catch (err) {
     console.error(err);
-    responseOutput.textContent = `Request failed: ${err.message || err}.\n\nNote: Execute calls a local/serverless proxy at /api/simulate-payment to avoid CORS. Make sure you're running this via "node server.js" locally or the deployed Cloudflare Worker.`;
+    responseMeta.textContent = 'Request failed';
+    responseOutput.textContent = `Request failed: ${err.message || err}.\n\nNote: pastikan proxy jalan (node server.js secara lokal, atau deployment Cloudflare Worker).`;
   } finally {
     submitBtn.disabled = false;
   }

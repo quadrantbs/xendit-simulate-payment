@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Simulasi payment Xendit Fixed Virtual Account untuk test mode." />
-    <title>Xendit Simulate Payment</title>
+    <meta name="description" content="Mini Postman-like client untuk test API Xendit, langsung dari browser." />
+    <title>Xendit API Tester</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -18,34 +18,70 @@
       <section class="hero card">
         <div>
           <span class="badge">Demo Repo</span>
-          <h1>Xendit Simulate Payment</h1>
-          <p class="lead">Simulasikan pembayaran ke Fixed Virtual Account (FVA) Xendit
-            yang sudah ada, langsung dari browser.</p>
+          <h1>Xendit API Tester</h1>
+          <p class="lead">Bikin request bebas ke API Xendit (test mode) langsung dari browser —
+            atur method, URL, header, auth, dan body sendiri, seperti Postman.</p>
         </div>
       </section>
+
       <section class="grid content-grid">
         <article class="card panel">
           <div class="panel-head">
-            <h2>Simulate Payment</h2>
-            <p>Isi API Key, External ID FVA, dan Amount, lalu klik Execute.</p>
+            <h2>Request</h2>
+            <p>Hanya request ke <code>api.xendit.co</code> yang diteruskan oleh proxy.</p>
           </div>
 
-          <form id="simulateForm" class="form">
-            <label>
-              API Key (Xendit)
-              <input type="password" id="apiKey" placeholder="xnd_development_..." required />
-            </label>
-            <label>
-              External ID
-              <input type="text" id="externalId" placeholder="b7109f--1784189199973--guide--wuoeg6" required />
-            </label>
-            <label>
-              Amount
-              <input type="number" id="amount" value="150000" placeholder="150000" min="1" step="1" required />
-            </label>
+          <form id="requestForm" class="request-form">
+            <div class="request-line">
+              <select id="method">
+                <option value="GET">GET</option>
+                <option value="POST" selected>POST</option>
+                <option value="PATCH">PATCH</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+              </select>
+              <input
+                type="text"
+                id="url"
+                placeholder="https://api.xendit.co/callback_virtual_accounts/external_id=.../simulate_payment"
+                value="https://api.xendit.co/callback_virtual_accounts/external_id=REPLACE_ME/simulate_payment"
+                required
+              />
+            </div>
+
+            <div class="field-block">
+              <div class="field-label-row">
+                <span>Auth</span>
+              </div>
+              <div class="auth-row">
+                <select id="authType">
+                  <option value="basic" selected>Basic Auth (API Key)</option>
+                  <option value="bearer">Bearer Token</option>
+                  <option value="none">No Auth</option>
+                </select>
+                <input type="password" id="authValue" placeholder="xnd_development_..." />
+              </div>
+            </div>
+
+            <div class="field-block">
+              <div class="field-label-row">
+                <span>Headers</span>
+                <button type="button" class="btn action-btn" id="addHeader">+ Header</button>
+              </div>
+              <div id="headersList" class="kv-list"></div>
+            </div>
+
+            <div class="field-block">
+              <div class="field-label-row">
+                <span>Body (JSON)</span>
+              </div>
+              <textarea id="body" class="body-input" rows="8" placeholder='{"amount": 150000}'>{
+  "amount": 150000
+}</textarea>
+            </div>
 
             <div class="form-actions">
-              <button class="btn btn-primary" type="submit">Execute</button>
+              <button class="btn btn-primary" type="submit">Send</button>
             </div>
           </form>
         </article>
@@ -53,9 +89,9 @@
         <article class="card panel">
           <div class="panel-head">
             <h2>Response</h2>
-            <p>Hasil response dari Xendit akan tampil di sini.</p>
+            <p id="responseMeta">Belum ada request.</p>
           </div>
-          <pre id="responseOutput" class="code-block"># response akan tampil di sini setelah eksekusi</pre>
+          <pre id="responseOutput" class="code-block"># response akan tampil di sini setelah Send</pre>
         </article>
       </section>
     </main>

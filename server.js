@@ -1,11 +1,12 @@
 // Simple local proxy to bypass browser CORS when calling Xendit's API.
 // Run: node server.js
-// Then open http://localhost:8000 and use the Execute button.
+// Then open http://localhost:8000 and use the Send button.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 8000;
+const ALLOWED_HOST = 'api.xendit.co';
 
 const MIME = {
   '.html': 'text/html',
@@ -29,36 +30,56 @@ function serveStatic(req, res) {
   });
 }
 
-function proxySimulatePayment(req, res) {
-  let body = '';
-  req.on('data', (chunk) => (body += chunk));
+function sendJson(res, status, obj) {
+  res.writeHead(status, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(obj));
+}
+
+function proxyRequest(req, res) {
+  let raw = '';
+  req.on('data', (chunk) => (raw += chunk));
   req.on('end', async () => {
+    let parsed;
     try {
-      const { external_id, amount } = JSON.parse(body);
-      const xenditRes = await fetch(
-        `https://api.xendit.co/callback_virtual_accounts/external_id=${encodeURIComponent(external_id)}/simulate_payment`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: req.headers.authorization,
-          },
-          body: JSON.stringify({ amount }),
-        }
-      );
-      const text = await xenditRes.text();
-      res.writeHead(xenditRes.status, { 'Content-Type': 'application/json' });
-      res.end(text);
+      parsed = JSON.parse(raw);
+    } catch (e) {
+      sendJson(res, 400, { error: 'Invalid JSON in proxy request' });
+      return;
+    }
+
+    const { method, url: targetUrl, headers, body } = parsed;
+
+    let target;
+    try {
+      target = new URL(targetUrl);
+    } catch (e) {
+      sendJson(res, 400, { error: 'Invalid target URL' });
+      return;
+    }
+
+    if (target.hostname !== ALLOWED_HOST) {
+      sendJson(res, 400, { error: `Only requests to ${ALLOWED_HOST} are allowed` });
+      return;
+    }
+
+    try {
+      const upstreamRes = await fetch(target.toString(), {
+        method: method || 'GET',
+        headers: headers || {},
+        body: method && method !== 'GET' && body !== undefined ? JSON.stringify(body) : undefined,
+      });
+
+      const text = await upstreamRes.text();
+      sendJson(res, 200, { status: upstreamRes.status, statusText: upstreamRes.statusText, body: text });
     } catch (err) {
-      res.writeHead(502, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Proxy request failed', detail: err.message }));
+      sendJson(res, 502, { error: 'Proxy request failed', detail: err.message });
     }
   });
 }
 
 const server = http.createServer((req, res) => {
-  if (req.method === 'POST' && req.url === '/api/simulate-payment') {
-    proxySimulatePayment(req, res);
+  if (req.method === 'POST' && req.url === '/api/proxy') {
+    proxyRequest(req, res);
     return;
   }
   serveStatic(req, res);

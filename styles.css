@@ -326,6 +326,76 @@ select {
   color: #cbd5e1;
 }
 
+.request-form {
+  display: grid;
+  gap: 18px;
+}
+
+.request-line {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 10px;
+}
+
+.field-block {
+  display: grid;
+  gap: 10px;
+}
+
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #cbd5e1;
+  font-size: 0.92rem;
+}
+
+.auth-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 10px;
+}
+
+.kv-list {
+  display: grid;
+  gap: 8px;
+}
+
+.kv-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+}
+
+.kv-row input {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--text);
+  padding: 10px 12px;
+  outline: none;
+}
+
+.body-input {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--text);
+  padding: 13px 14px;
+  outline: none;
+  font-family: "Consolas", "Monaco", monospace;
+  font-size: 0.9rem;
+  resize: vertical;
+}
+
+.body-input:focus,
+.kv-row input:focus {
+  border-color: rgba(124, 58, 237, 0.8);
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.16);
+}
+
 .code-block {
   min-height: 320px;
   margin: 0;
