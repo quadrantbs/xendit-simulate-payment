@@ -1,9 +1,10 @@
 # Xendit Simulate Payment
 
-Repo demo untuk mensimulasikan alur payment seperti Xendit.
+Repo demo untuk mensimulasikan alur payment seperti Xendit, dengan fokus utama pada Fixed Virtual Account (FVA).
 
 ## Fitur
 - Create payment mock
+- Simulasi Fixed Virtual Account (FVA)
 - Ubah status payment: pending, paid, expired, failed
 - Preview payload webhook
 - Data tersimpan di browser via localStorage

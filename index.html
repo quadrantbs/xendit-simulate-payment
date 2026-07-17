@@ -70,12 +70,22 @@
               <input type="number" id="amount" placeholder="150000" min="1000" step="1000" required />
             </label>
             <label>
-              Payment Channel
+              Payment Type
               <select id="channel">
-                <option value="bank_transfer">Bank Transfer</option>
+                <option value="fva">Fixed Virtual Account (FVA)</option>
                 <option value="qris">QRIS</option>
                 <option value="ewallet">E-Wallet</option>
                 <option value="credit_card">Credit Card</option>
+              </select>
+            </label>
+            <label>
+              VA Bank
+              <select id="vaBank">
+                <option value="bni">BNI</option>
+                <option value="bca">BCA</option>
+                <option value="bri">BRI</option>
+                <option value="mandiri">Mandiri</option>
+                <option value="permata">Permata</option>
               </select>
             </label>
             <label>

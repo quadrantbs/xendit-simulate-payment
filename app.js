@@ -14,6 +14,7 @@ const customerNameEl = document.getElementById('customerName');
 const orderIdEl = document.getElementById('orderId');
 const amountEl = document.getElementById('amount');
 const channelEl = document.getElementById('channel');
+const vaBankEl = document.getElementById('vaBank');
 const expiryMinutesEl = document.getElementById('expiryMinutes');
 
 const currencyFormatter = new Intl.NumberFormat('id-ID', {
@@ -35,6 +36,7 @@ paymentForm.addEventListener('submit', (event) => {
     orderId: orderIdEl.value.trim(),
     amount: Number(amountEl.value),
     channel: channelEl.value,
+    vaBank: vaBankEl.value,
     expiryMinutes: Number(expiryMinutesEl.value),
   });
 
@@ -60,7 +62,8 @@ function seedDefaults() {
       customerName: 'Budi Santoso',
       orderId: 'ORD-1001',
       amount: 150000,
-      channel: 'bank_transfer',
+      channel: 'fva',
+      vaBank: 'bni',
       expiryMinutes: 60,
       status: 'pending',
     }),
@@ -82,12 +85,14 @@ function createPayment({
   orderId,
   amount,
   channel,
+  vaBank,
   expiryMinutes,
   status = 'pending',
 }) {
   const createdAt = new Date();
   const expiresAt = new Date(createdAt.getTime() + expiryMinutes * 60 * 1000);
   const paymentId = `pay_${Math.random().toString(36).slice(2, 10)}`;
+  const vaNumber = channel === 'fva' ? generateVaNumber(vaBank) : null;
 
   return {
     id: paymentId,
@@ -95,6 +100,8 @@ function createPayment({
     orderId,
     amount,
     channel,
+    vaBank: channel === 'fva' ? vaBank : null,
+    vaNumber,
     status,
     createdAt: createdAt.toISOString(),
     expiresAt: expiresAt.toISOString(),
@@ -160,6 +167,7 @@ function renderPayments() {
             <div>
               <h3 class="payment-title">${escapeHtml(payment.orderId)} · ${escapeHtml(payment.customerName)}</h3>
               <p class="payment-meta">${currencyFormatter.format(payment.amount)} · ${formatChannel(payment.channel)}</p>
+              ${payment.vaNumber ? `<p class="payment-sub">VA ${escapeHtml(formatBank(payment.vaBank))}: ${escapeHtml(payment.vaNumber)}</p>` : ''}
               <p class="payment-sub">Invoice: ${escapeHtml(payment.invoiceUrl)}</p>
             </div>
             <span class="status-pill ${statusClass(payment.status)}">${payment.status}</span>
@@ -197,6 +205,8 @@ function renderWebhook() {
           customer_name: latest.customerName,
           amount: latest.amount,
           channel: latest.channel,
+          va_bank: latest.vaBank,
+          va_number: latest.vaNumber,
           status: latest.status,
           invoice_url: latest.invoiceUrl,
           expiry_date: latest.expiresAt,
@@ -222,13 +232,41 @@ function statusClass(status) {
 
 function formatChannel(channel) {
   const map = {
-    bank_transfer: 'Bank Transfer',
+    fva: 'Fixed Virtual Account',
     qris: 'QRIS',
     ewallet: 'E-Wallet',
     credit_card: 'Credit Card',
   };
 
   return map[channel] ?? channel;
+}
+
+function formatBank(bank) {
+  const map = {
+    bni: 'BNI',
+    bca: 'BCA',
+    bri: 'BRI',
+    mandiri: 'Mandiri',
+    permata: 'Permata',
+  };
+
+  return map[bank] ?? bank;
+}
+
+function generateVaNumber(bank) {
+  const prefixes = {
+    bni: '88888',
+    bca: '70012',
+    bri: '88810',
+    mandiri: '88608',
+    permata: '898',
+  };
+
+  const prefix = prefixes[bank] ?? '88888';
+  const suffixLength = 10 - prefix.length;
+  const suffix = Array.from({ length: suffixLength }, () => Math.floor(Math.random() * 10)).join('');
+
+  return `${prefix}${suffix}`;
 }
 
 function formatDate(value) {
