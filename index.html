@@ -120,15 +120,65 @@
 
         <article class="card panel">
           <div class="panel-head">
-            <h2>Catatan Repo</h2>
-            <p>Siap dipush ke GitHub dan dipakai sebagai demo.</p>
+            <h2>Setting Xendit</h2>
+            <p>Disimpan lokal di browser agar user tidak perlu input ulang.</p>
           </div>
-          <ul class="notes">
-            <li>Tanpa dependency external.</li>
-            <li>Cocok untuk GitHub Pages.</li>
-            <li>Data tersimpan di localStorage browser.</li>
-          </ul>
+
+          <form id="xenditConfigForm" class="form settings-form">
+            <label>
+              External ID
+              <input type="text" id="externalId" placeholder="ext_123456" />
+            </label>
+            <label>
+              API Key
+              <input type="password" id="apiKey" placeholder="xnd_development_..." />
+            </label>
+            <label>
+              Default Nominal
+              <input type="number" id="defaultAmount" placeholder="150000" min="1000" step="1000" />
+            </label>
+            <label>
+              Default Payment Type
+              <select id="defaultChannel">
+                <option value="fva">Fixed Virtual Account (FVA)</option>
+                <option value="qris">QRIS</option>
+                <option value="ewallet">E-Wallet</option>
+                <option value="credit_card">Credit Card</option>
+              </select>
+            </label>
+            <label>
+              Default VA Bank
+              <select id="defaultVaBank">
+                <option value="bni">BNI</option>
+                <option value="bca">BCA</option>
+                <option value="bri">BRI</option>
+                <option value="mandiri">Mandiri</option>
+                <option value="permata">Permata</option>
+              </select>
+            </label>
+            <label>
+              Default Expiry (menit)
+              <input type="number" id="defaultExpiryMinutes" min="5" step="5" />
+            </label>
+
+            <div class="form-actions full-width">
+              <button class="btn btn-primary" type="submit">Save Local Settings</button>
+            </div>
+          </form>
         </article>
+      </section>
+
+      <section class="card panel note-panel">
+        <div class="panel-head">
+          <h2>Catatan Repo</h2>
+          <p>Siap dipush ke GitHub dan dipakai sebagai demo.</p>
+        </div>
+        <ul class="notes">
+          <li>Tanpa dependency external.</li>
+          <li>Cocok untuk GitHub Pages.</li>
+          <li>Data tersimpan di localStorage browser.</li>
+          <li>External ID, API Key, dan default nominal bisa disimpan lokal.</li>
+        </ul>
       </section>
     </main>
 

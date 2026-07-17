@@ -1,6 +1,8 @@
 const storageKey = 'xendit-simulate-payment:v1';
+const settingsKey = 'xendit-simulate-payment:settings:v1';
 
 const paymentForm = document.getElementById('paymentForm');
+const xenditConfigForm = document.getElementById('xenditConfigForm');
 const paymentList = document.getElementById('paymentList');
 const webhookPayload = document.getElementById('webhookPayload');
 const resetBtn = document.getElementById('resetBtn');
@@ -17,6 +19,13 @@ const channelEl = document.getElementById('channel');
 const vaBankEl = document.getElementById('vaBank');
 const expiryMinutesEl = document.getElementById('expiryMinutes');
 
+const externalIdEl = document.getElementById('externalId');
+const apiKeyEl = document.getElementById('apiKey');
+const defaultAmountEl = document.getElementById('defaultAmount');
+const defaultChannelEl = document.getElementById('defaultChannel');
+const defaultVaBankEl = document.getElementById('defaultVaBank');
+const defaultExpiryMinutesEl = document.getElementById('defaultExpiryMinutes');
+
 const currencyFormatter = new Intl.NumberFormat('id-ID', {
   style: 'currency',
   currency: 'IDR',
@@ -24,8 +33,10 @@ const currencyFormatter = new Intl.NumberFormat('id-ID', {
 });
 
 let payments = loadPayments();
+let settings = loadSettings();
 
 seedDefaults();
+applySettingsToForm();
 render();
 
 paymentForm.addEventListener('submit', (event) => {
@@ -44,7 +55,24 @@ paymentForm.addEventListener('submit', (event) => {
   savePayments();
   render();
   paymentForm.reset();
+  applySettingsToPaymentForm();
   customerNameEl.focus();
+});
+
+xenditConfigForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+
+  settings = {
+    externalId: externalIdEl.value.trim(),
+    apiKey: apiKeyEl.value.trim(),
+    defaultAmount: Number(defaultAmountEl.value),
+    defaultChannel: defaultChannelEl.value,
+    defaultVaBank: defaultVaBankEl.value,
+    defaultExpiryMinutes: Number(defaultExpiryMinutesEl.value),
+  };
+
+  saveSettings();
+  applySettingsToPaymentForm();
 });
 
 resetBtn.addEventListener('click', () => {
@@ -78,6 +106,53 @@ function seedDefaults() {
   ];
 
   savePayments();
+}
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(settingsKey);
+    return raw
+      ? JSON.parse(raw)
+      : {
+          externalId: '',
+          apiKey: '',
+          defaultAmount: 150000,
+          defaultChannel: 'fva',
+          defaultVaBank: 'bni',
+          defaultExpiryMinutes: 60,
+        };
+  } catch {
+    return {
+      externalId: '',
+      apiKey: '',
+      defaultAmount: 150000,
+      defaultChannel: 'fva',
+      defaultVaBank: 'bni',
+      defaultExpiryMinutes: 60,
+    };
+  }
+}
+
+function saveSettings() {
+  localStorage.setItem(settingsKey, JSON.stringify(settings));
+}
+
+function applySettingsToForm() {
+  externalIdEl.value = settings.externalId ?? '';
+  apiKeyEl.value = settings.apiKey ?? '';
+  defaultAmountEl.value = settings.defaultAmount ?? 150000;
+  defaultChannelEl.value = settings.defaultChannel ?? 'fva';
+  defaultVaBankEl.value = settings.defaultVaBank ?? 'bni';
+  defaultExpiryMinutesEl.value = settings.defaultExpiryMinutes ?? 60;
+
+  applySettingsToPaymentForm();
+}
+
+function applySettingsToPaymentForm() {
+  amountEl.value = settings.defaultAmount ?? 150000;
+  channelEl.value = settings.defaultChannel ?? 'fva';
+  vaBankEl.value = settings.defaultVaBank ?? 'bni';
+  expiryMinutesEl.value = settings.defaultExpiryMinutes ?? 60;
 }
 
 function createPayment({
@@ -197,6 +272,8 @@ function renderWebhook() {
   const latest = payments[0] ?? null;
   const payload = latest
     ? {
+        external_id: settings.externalId || 'not_set',
+        api_key_saved_local: Boolean(settings.apiKey),
         event: `payment.${latest.status}`,
         created: latest.createdAt,
         data: {
