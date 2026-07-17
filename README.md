@@ -3,8 +3,8 @@
 Repo demo untuk mensimulasikan alur payment seperti Xendit, dengan fokus utama pada Fixed Virtual Account (FVA).
 
 ## Fitur
-- Create payment mock
-- Simulasi Fixed Virtual Account (FVA)
+- Tab berbasis hash: #simulate dan #settings
+- Create payment mock khusus FVA
 - Ubah status payment: pending, paid, expired, failed
 - Preview payload webhook
 - Data tersimpan di browser via localStorage
@@ -23,3 +23,4 @@ Repo demo untuk mensimulasikan alur payment seperti Xendit, dengan fokus utama p
 ## Catatan
 Project ini adalah simulasi frontend, bukan integrasi resmi ke Xendit.
 External ID dan API key disimpan hanya di localStorage browser masing-masing user.
+Tab simulasi dipakai untuk test FVA, sedangkan tab settings untuk simpan konfigurasi lokal.

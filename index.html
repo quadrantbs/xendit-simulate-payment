@@ -20,8 +20,8 @@
           <span class="badge">Demo Repo</span>
           <h1>Xendit Simulate Payment</h1>
           <p class="lead">
-            Repository ringan untuk mensimulasikan alur payment Xendit: create invoice,
-            ubah status, dan lihat payload webhook dalam satu halaman.
+            Web app ringan untuk simulasi FVA Xendit via browser. User tinggal isi external ID,
+            API key, dan nominal lalu langsung test tanpa curl.
           </p>
         </div>
         <div class="hero-actions">
@@ -30,95 +30,109 @@
         </div>
       </section>
 
-      <section class="grid stats-grid">
-        <article class="card stat-card">
-          <span class="stat-label">Total Payment</span>
-          <strong id="totalPayments">0</strong>
-        </article>
-        <article class="card stat-card">
-          <span class="stat-label">Paid</span>
-          <strong id="paidPayments">0</strong>
-        </article>
-        <article class="card stat-card">
-          <span class="stat-label">Pending</span>
-          <strong id="pendingPayments">0</strong>
-        </article>
-        <article class="card stat-card">
-          <span class="stat-label">Amount</span>
-          <strong id="totalAmount">Rp0</strong>
-        </article>
-      </section>
+      <nav class="tab-nav card" aria-label="Tab navigasi">
+        <a class="tab-link" href="#simulate" data-tab-link="simulate">Simulate FVA</a>
+        <a class="tab-link" href="#settings" data-tab-link="settings">Xendit Settings</a>
+      </nav>
 
-      <section class="grid content-grid">
-        <article class="card panel">
-          <div class="panel-head">
-            <h2>Buat Simulasi Payment</h2>
-            <p>Form ini membuat data mock seperti invoice Xendit.</p>
-          </div>
+      <section class="tab-panel" data-tab-panel="simulate">
+        <section class="grid stats-grid">
+          <article class="card stat-card">
+            <span class="stat-label">Total Payment</span>
+            <strong id="totalPayments">0</strong>
+          </article>
+          <article class="card stat-card">
+            <span class="stat-label">Paid</span>
+            <strong id="paidPayments">0</strong>
+          </article>
+          <article class="card stat-card">
+            <span class="stat-label">Pending</span>
+            <strong id="pendingPayments">0</strong>
+          </article>
+          <article class="card stat-card">
+            <span class="stat-label">Amount</span>
+            <strong id="totalAmount">Rp0</strong>
+          </article>
+        </section>
 
-          <form id="paymentForm" class="form">
-            <label>
-              Nama Customer
-              <input type="text" id="customerName" placeholder="Budi Santoso" required />
-            </label>
-            <label>
-              Order ID
-              <input type="text" id="orderId" placeholder="ORD-1001" required />
-            </label>
-            <label>
-              Amount
-              <input type="number" id="amount" placeholder="150000" min="1000" step="1000" required />
-            </label>
-            <label>
-              Payment Type
-              <select id="channel">
-                <option value="fva">Fixed Virtual Account (FVA)</option>
-                <option value="qris">QRIS</option>
-                <option value="ewallet">E-Wallet</option>
-                <option value="credit_card">Credit Card</option>
-              </select>
-            </label>
-            <label>
-              VA Bank
-              <select id="vaBank">
-                <option value="bni">BNI</option>
-                <option value="bca">BCA</option>
-                <option value="bri">BRI</option>
-                <option value="mandiri">Mandiri</option>
-                <option value="permata">Permata</option>
-              </select>
-            </label>
-            <label>
-              Expiry (menit)
-              <input type="number" id="expiryMinutes" value="60" min="5" step="5" required />
-            </label>
-
-            <div class="form-actions">
-              <button class="btn btn-primary" type="submit">Create Payment</button>
+        <section class="grid content-grid">
+          <article class="card panel">
+            <div class="panel-head">
+              <h2>Buat Simulasi FVA</h2>
+              <p>Form ini dipakai untuk test payment FVA yang biasa sebelumnya dijalankan via curl.</p>
             </div>
-          </form>
-        </article>
 
-        <article class="card panel">
-          <div class="panel-head">
-            <h2>Daftar Payment</h2>
-            <p>Ubah status payment untuk simulasi webhook.</p>
-          </div>
+            <form id="paymentForm" class="form">
+              <label>
+                Nama Customer
+                <input type="text" id="customerName" placeholder="Budi Santoso" required />
+              </label>
+              <label>
+                External ID
+                <input type="text" id="orderId" placeholder="ext_123456" required />
+              </label>
+              <label>
+                Amount
+                <input type="number" id="amount" placeholder="150000" min="1000" step="1000" required />
+              </label>
+              <label>
+                VA Bank
+                <select id="vaBank">
+                  <option value="bni">BNI</option>
+                  <option value="bca">BCA</option>
+                  <option value="bri">BRI</option>
+                  <option value="mandiri">Mandiri</option>
+                  <option value="permata">Permata</option>
+                </select>
+              </label>
+              <label>
+                Expiry (menit)
+                <input type="number" id="expiryMinutes" value="60" min="5" step="5" required />
+              </label>
 
-          <div id="paymentList" class="payment-list"></div>
-        </article>
+              <input type="hidden" id="channel" value="fva" />
+
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit">Create FVA Payment</button>
+              </div>
+            </form>
+          </article>
+
+          <article class="card panel">
+            <div class="panel-head">
+              <h2>Daftar Payment</h2>
+              <p>Ubah status payment untuk simulasi webhook.</p>
+            </div>
+
+            <div id="paymentList" class="payment-list"></div>
+          </article>
+        </section>
+
+        <section class="grid content-grid bottom-grid">
+          <article class="card panel">
+            <div class="panel-head">
+              <h2>Payload Webhook</h2>
+              <p>Contoh payload yang akan dikirim saat status berubah.</p>
+            </div>
+            <pre id="webhookPayload" class="code-block">{}</pre>
+          </article>
+
+          <article class="card panel">
+            <div class="panel-head">
+              <h2>Info</h2>
+              <p>Simulasi FVA dibuat untuk mempermudah test internal.</p>
+            </div>
+            <ul class="notes">
+              <li>Tanpa dependency external.</li>
+              <li>Cocok untuk GitHub Pages.</li>
+              <li>Data tersimpan di localStorage browser.</li>
+            </ul>
+          </article>
+        </section>
       </section>
 
-      <section class="grid content-grid bottom-grid">
-        <article class="card panel">
-          <div class="panel-head">
-            <h2>Payload Webhook</h2>
-            <p>Contoh payload yang akan dikirim saat status berubah.</p>
-          </div>
-          <pre id="webhookPayload" class="code-block">{}</pre>
-        </article>
-
-        <article class="card panel">
+      <section class="tab-panel" data-tab-panel="settings">
+        <section class="card panel note-panel">
           <div class="panel-head">
             <h2>Setting Xendit</h2>
             <p>Disimpan lokal di browser agar user tidak perlu input ulang.</p>
@@ -136,15 +150,6 @@
             <label>
               Default Nominal
               <input type="number" id="defaultAmount" placeholder="150000" min="1000" step="1000" />
-            </label>
-            <label>
-              Default Payment Type
-              <select id="defaultChannel">
-                <option value="fva">Fixed Virtual Account (FVA)</option>
-                <option value="qris">QRIS</option>
-                <option value="ewallet">E-Wallet</option>
-                <option value="credit_card">Credit Card</option>
-              </select>
             </label>
             <label>
               Default VA Bank
@@ -165,20 +170,16 @@
               <button class="btn btn-primary" type="submit">Save Local Settings</button>
             </div>
           </form>
-        </article>
-      </section>
 
-      <section class="card panel note-panel">
-        <div class="panel-head">
-          <h2>Catatan Repo</h2>
-          <p>Siap dipush ke GitHub dan dipakai sebagai demo.</p>
-        </div>
-        <ul class="notes">
-          <li>Tanpa dependency external.</li>
-          <li>Cocok untuk GitHub Pages.</li>
-          <li>Data tersimpan di localStorage browser.</li>
-          <li>External ID, API Key, dan default nominal bisa disimpan lokal.</li>
-        </ul>
+          <div class="panel-head spaced-top">
+            <h2>Catatan</h2>
+            <p>Setting ini cuma buat membantu test internal.</p>
+          </div>
+          <ul class="notes">
+            <li>External ID dan API Key disimpan hanya di browser.</li>
+            <li>Bisa dibuka via hash: #simulate atau #settings.</li>
+          </ul>
+        </section>
       </section>
     </main>
 

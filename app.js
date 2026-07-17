@@ -6,6 +6,8 @@ const xenditConfigForm = document.getElementById('xenditConfigForm');
 const paymentList = document.getElementById('paymentList');
 const webhookPayload = document.getElementById('webhookPayload');
 const resetBtn = document.getElementById('resetBtn');
+const tabLinks = Array.from(document.querySelectorAll('[data-tab-link]'));
+const tabPanels = Array.from(document.querySelectorAll('[data-tab-panel]'));
 
 const totalPaymentsEl = document.getElementById('totalPayments');
 const paidPaymentsEl = document.getElementById('paidPayments');
@@ -22,7 +24,6 @@ const expiryMinutesEl = document.getElementById('expiryMinutes');
 const externalIdEl = document.getElementById('externalId');
 const apiKeyEl = document.getElementById('apiKey');
 const defaultAmountEl = document.getElementById('defaultAmount');
-const defaultChannelEl = document.getElementById('defaultChannel');
 const defaultVaBankEl = document.getElementById('defaultVaBank');
 const defaultExpiryMinutesEl = document.getElementById('defaultExpiryMinutes');
 
@@ -37,6 +38,7 @@ let settings = loadSettings();
 
 seedDefaults();
 applySettingsToForm();
+setupTabs();
 render();
 
 paymentForm.addEventListener('submit', (event) => {
@@ -66,13 +68,13 @@ xenditConfigForm.addEventListener('submit', (event) => {
     externalId: externalIdEl.value.trim(),
     apiKey: apiKeyEl.value.trim(),
     defaultAmount: Number(defaultAmountEl.value),
-    defaultChannel: defaultChannelEl.value,
     defaultVaBank: defaultVaBankEl.value,
     defaultExpiryMinutes: Number(defaultExpiryMinutesEl.value),
   };
 
   saveSettings();
   applySettingsToPaymentForm();
+  render();
 });
 
 resetBtn.addEventListener('click', () => {
@@ -117,7 +119,6 @@ function loadSettings() {
           externalId: '',
           apiKey: '',
           defaultAmount: 150000,
-          defaultChannel: 'fva',
           defaultVaBank: 'bni',
           defaultExpiryMinutes: 60,
         };
@@ -126,7 +127,6 @@ function loadSettings() {
       externalId: '',
       apiKey: '',
       defaultAmount: 150000,
-      defaultChannel: 'fva',
       defaultVaBank: 'bni',
       defaultExpiryMinutes: 60,
     };
@@ -141,7 +141,6 @@ function applySettingsToForm() {
   externalIdEl.value = settings.externalId ?? '';
   apiKeyEl.value = settings.apiKey ?? '';
   defaultAmountEl.value = settings.defaultAmount ?? 150000;
-  defaultChannelEl.value = settings.defaultChannel ?? 'fva';
   defaultVaBankEl.value = settings.defaultVaBank ?? 'bni';
   defaultExpiryMinutesEl.value = settings.defaultExpiryMinutes ?? 60;
 
@@ -150,9 +149,34 @@ function applySettingsToForm() {
 
 function applySettingsToPaymentForm() {
   amountEl.value = settings.defaultAmount ?? 150000;
-  channelEl.value = settings.defaultChannel ?? 'fva';
+  channelEl.value = 'fva';
   vaBankEl.value = settings.defaultVaBank ?? 'bni';
   expiryMinutesEl.value = settings.defaultExpiryMinutes ?? 60;
+}
+
+function setupTabs() {
+  const resolveTab = () => {
+    const hash = window.location.hash.replace('#', '').trim();
+    return hash === 'settings' ? 'settings' : 'simulate';
+  };
+
+  const setActiveTab = (tabName) => {
+    tabPanels.forEach((panel) => {
+      const isActive = panel.dataset.tabPanel === tabName;
+      panel.hidden = !isActive;
+    });
+
+    tabLinks.forEach((link) => {
+      const isActive = link.dataset.tabLink === tabName;
+      link.classList.toggle('is-active', isActive);
+      link.setAttribute('aria-current', isActive ? 'page' : 'false');
+    });
+  };
+
+  const applyFromHash = () => setActiveTab(resolveTab());
+
+  window.addEventListener('hashchange', applyFromHash);
+  applyFromHash();
 }
 
 function createPayment({
@@ -172,6 +196,7 @@ function createPayment({
   return {
     id: paymentId,
     customerName,
+    externalId: orderId,
     orderId,
     amount,
     channel,
@@ -240,7 +265,7 @@ function renderPayments() {
         <article class="payment-item">
           <div class="payment-top">
             <div>
-              <h3 class="payment-title">${escapeHtml(payment.orderId)} · ${escapeHtml(payment.customerName)}</h3>
+              <h3 class="payment-title">${escapeHtml(payment.externalId ?? payment.orderId)} · ${escapeHtml(payment.customerName)}</h3>
               <p class="payment-meta">${currencyFormatter.format(payment.amount)} · ${formatChannel(payment.channel)}</p>
               ${payment.vaNumber ? `<p class="payment-sub">VA ${escapeHtml(formatBank(payment.vaBank))}: ${escapeHtml(payment.vaNumber)}</p>` : ''}
               <p class="payment-sub">Invoice: ${escapeHtml(payment.invoiceUrl)}</p>
@@ -274,11 +299,12 @@ function renderWebhook() {
     ? {
         external_id: settings.externalId || 'not_set',
         api_key_saved_local: Boolean(settings.apiKey),
+        nominal: settings.defaultAmount ?? latest.amount,
         event: `payment.${latest.status}`,
         created: latest.createdAt,
         data: {
           id: latest.id,
-          order_id: latest.orderId,
+          external_id: latest.externalId ?? latest.orderId,
           customer_name: latest.customerName,
           amount: latest.amount,
           channel: latest.channel,
