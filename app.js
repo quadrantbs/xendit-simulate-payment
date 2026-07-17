@@ -1,13 +1,9 @@
 const storageKey = 'xendit-simulate-payment:v1';
-const settingsKey = 'xendit-simulate-payment:settings:v1';
 
 const paymentForm = document.getElementById('paymentForm');
-const xenditConfigForm = document.getElementById('xenditConfigForm');
 const paymentList = document.getElementById('paymentList');
 const webhookPayload = document.getElementById('webhookPayload');
 const resetBtn = document.getElementById('resetBtn');
-const tabLinks = Array.from(document.querySelectorAll('[data-tab-link]'));
-const tabPanels = Array.from(document.querySelectorAll('[data-tab-panel]'));
 
 const totalPaymentsEl = document.getElementById('totalPayments');
 const paidPaymentsEl = document.getElementById('paidPayments');
@@ -17,15 +13,8 @@ const totalAmountEl = document.getElementById('totalAmount');
 const customerNameEl = document.getElementById('customerName');
 const orderIdEl = document.getElementById('orderId');
 const amountEl = document.getElementById('amount');
-const channelEl = document.getElementById('channel');
 const vaBankEl = document.getElementById('vaBank');
 const expiryMinutesEl = document.getElementById('expiryMinutes');
-
-const externalIdEl = document.getElementById('externalId');
-const apiKeyEl = document.getElementById('apiKey');
-const defaultAmountEl = document.getElementById('defaultAmount');
-const defaultVaBankEl = document.getElementById('defaultVaBank');
-const defaultExpiryMinutesEl = document.getElementById('defaultExpiryMinutes');
 
 const currencyFormatter = new Intl.NumberFormat('id-ID', {
   style: 'currency',
@@ -34,11 +23,8 @@ const currencyFormatter = new Intl.NumberFormat('id-ID', {
 });
 
 let payments = loadPayments();
-let settings = loadSettings();
 
 seedDefaults();
-applySettingsToForm();
-setupTabs();
 render();
 
 paymentForm.addEventListener('submit', (event) => {
@@ -48,7 +34,7 @@ paymentForm.addEventListener('submit', (event) => {
     customerName: customerNameEl.value.trim(),
     orderId: orderIdEl.value.trim(),
     amount: Number(amountEl.value),
-    channel: channelEl.value,
+    channel: 'fva',
     vaBank: vaBankEl.value,
     expiryMinutes: Number(expiryMinutesEl.value),
   });
@@ -57,24 +43,10 @@ paymentForm.addEventListener('submit', (event) => {
   savePayments();
   render();
   paymentForm.reset();
-  applySettingsToPaymentForm();
+  amountEl.value = 150000;
+  vaBankEl.value = 'bni';
+  expiryMinutesEl.value = 60;
   customerNameEl.focus();
-});
-
-xenditConfigForm.addEventListener('submit', (event) => {
-  event.preventDefault();
-
-  settings = {
-    externalId: externalIdEl.value.trim(),
-    apiKey: apiKeyEl.value.trim(),
-    defaultAmount: Number(defaultAmountEl.value),
-    defaultVaBank: defaultVaBankEl.value,
-    defaultExpiryMinutes: Number(defaultExpiryMinutesEl.value),
-  };
-
-  saveSettings();
-  applySettingsToPaymentForm();
-  render();
 });
 
 resetBtn.addEventListener('click', () => {
@@ -108,75 +80,6 @@ function seedDefaults() {
   ];
 
   savePayments();
-}
-
-function loadSettings() {
-  try {
-    const raw = localStorage.getItem(settingsKey);
-    return raw
-      ? JSON.parse(raw)
-      : {
-          externalId: '',
-          apiKey: '',
-          defaultAmount: 150000,
-          defaultVaBank: 'bni',
-          defaultExpiryMinutes: 60,
-        };
-  } catch {
-    return {
-      externalId: '',
-      apiKey: '',
-      defaultAmount: 150000,
-      defaultVaBank: 'bni',
-      defaultExpiryMinutes: 60,
-    };
-  }
-}
-
-function saveSettings() {
-  localStorage.setItem(settingsKey, JSON.stringify(settings));
-}
-
-function applySettingsToForm() {
-  externalIdEl.value = settings.externalId ?? '';
-  apiKeyEl.value = settings.apiKey ?? '';
-  defaultAmountEl.value = settings.defaultAmount ?? 150000;
-  defaultVaBankEl.value = settings.defaultVaBank ?? 'bni';
-  defaultExpiryMinutesEl.value = settings.defaultExpiryMinutes ?? 60;
-
-  applySettingsToPaymentForm();
-}
-
-function applySettingsToPaymentForm() {
-  amountEl.value = settings.defaultAmount ?? 150000;
-  channelEl.value = 'fva';
-  vaBankEl.value = settings.defaultVaBank ?? 'bni';
-  expiryMinutesEl.value = settings.defaultExpiryMinutes ?? 60;
-}
-
-function setupTabs() {
-  const resolveTab = () => {
-    const hash = window.location.hash.replace('#', '').trim();
-    return hash === 'settings' ? 'settings' : 'simulate';
-  };
-
-  const setActiveTab = (tabName) => {
-    tabPanels.forEach((panel) => {
-      const isActive = panel.dataset.tabPanel === tabName;
-      panel.hidden = !isActive;
-    });
-
-    tabLinks.forEach((link) => {
-      const isActive = link.dataset.tabLink === tabName;
-      link.classList.toggle('is-active', isActive);
-      link.setAttribute('aria-current', isActive ? 'page' : 'false');
-    });
-  };
-
-  const applyFromHash = () => setActiveTab(resolveTab());
-
-  window.addEventListener('hashchange', applyFromHash);
-  applyFromHash();
 }
 
 function createPayment({
@@ -297,9 +200,8 @@ function renderWebhook() {
   const latest = payments[0] ?? null;
   const payload = latest
     ? {
-        external_id: settings.externalId || 'not_set',
-        api_key_saved_local: Boolean(settings.apiKey),
-        nominal: settings.defaultAmount ?? latest.amount,
+        external_id: latest.externalId ?? latest.orderId,
+        nominal: latest.amount,
         event: `payment.${latest.status}`,
         created: latest.createdAt,
         data: {

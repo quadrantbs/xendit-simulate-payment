@@ -21,7 +21,7 @@
           <h1>Xendit Simulate Payment</h1>
           <p class="lead">
             Web app ringan untuk simulasi FVA Xendit via browser. User tinggal isi external ID,
-            API key, dan nominal lalu langsung test tanpa curl.
+            nominal, dan bank VA lalu langsung test tanpa curl.
           </p>
         </div>
         <div class="hero-actions">
@@ -32,7 +32,6 @@
 
       <nav class="tab-nav card" aria-label="Tab navigasi">
         <a class="tab-link" href="#simulate" data-tab-link="simulate">Simulate FVA</a>
-        <a class="tab-link" href="#settings" data-tab-link="settings">Xendit Settings</a>
       </nav>
 
       <section class="tab-panel" data-tab-panel="simulate">
@@ -73,7 +72,7 @@
               </label>
               <label>
                 Amount
-                <input type="number" id="amount" placeholder="150000" min="1000" step="1000" required />
+                <input type="number" id="amount" value="150000" placeholder="150000" min="1000" step="1000" required />
               </label>
               <label>
                 VA Bank
@@ -128,57 +127,6 @@
               <li>Data tersimpan di localStorage browser.</li>
             </ul>
           </article>
-        </section>
-      </section>
-
-      <section class="tab-panel" data-tab-panel="settings">
-        <section class="card panel note-panel">
-          <div class="panel-head">
-            <h2>Setting Xendit</h2>
-            <p>Disimpan lokal di browser agar user tidak perlu input ulang.</p>
-          </div>
-
-          <form id="xenditConfigForm" class="form settings-form">
-            <label>
-              External ID
-              <input type="text" id="externalId" placeholder="ext_123456" />
-            </label>
-            <label>
-              API Key
-              <input type="password" id="apiKey" placeholder="xnd_development_..." />
-            </label>
-            <label>
-              Default Nominal
-              <input type="number" id="defaultAmount" placeholder="150000" min="1000" step="1000" />
-            </label>
-            <label>
-              Default VA Bank
-              <select id="defaultVaBank">
-                <option value="bni">BNI</option>
-                <option value="bca">BCA</option>
-                <option value="bri">BRI</option>
-                <option value="mandiri">Mandiri</option>
-                <option value="permata">Permata</option>
-              </select>
-            </label>
-            <label>
-              Default Expiry (menit)
-              <input type="number" id="defaultExpiryMinutes" min="5" step="5" />
-            </label>
-
-            <div class="form-actions full-width">
-              <button class="btn btn-primary" type="submit">Save Local Settings</button>
-            </div>
-          </form>
-
-          <div class="panel-head spaced-top">
-            <h2>Catatan</h2>
-            <p>Setting ini cuma buat membantu test internal.</p>
-          </div>
-          <ul class="notes">
-            <li>External ID dan API Key disimpan hanya di browser.</li>
-            <li>Bisa dibuka via hash: #simulate atau #settings.</li>
-          </ul>
         </section>
       </section>
     </main>
