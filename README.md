@@ -1,6 +1,6 @@
 # Xendit API Tester
 
-Mini Postman-like client untuk bikin request bebas ke API Xendit (test mode), langsung dari browser.
+Client kecil untuk bikin request bebas ke API Xendit (test mode), langsung dari browser.
 
 ## Fitur
 - Atur sendiri: `Method`, `URL`, `Headers`, `Auth` (Basic/Bearer/None), dan `Body` (JSON).
