@@ -1,24 +1,32 @@
 # Xendit Simulate Payment
 
-Repo demo untuk mensimulasikan alur payment seperti Xendit, dengan fokus utama pada Fixed Virtual Account (FVA).
+Repo kecil untuk menghasilkan command `curl` yang digunakan untuk membuat Fixed Virtual Account (FVA) di Xendit.
 
 ## Fitur
-- Satu tab: Simulate FVA
-- Create payment mock khusus FVA
-- Ubah status payment: pending, paid, expired, failed
-- Preview payload webhook
-- Data tersimpan di browser via localStorage
-- Siap dipublish ke GitHub Pages
+- Form sederhana yang meminta `API Key`, `External ID`, dan `Amount`.
+- Menghasilkan command `curl` siap-salin untuk dipakai di terminal.
 
 ## Cara menjalankan
-1. Buka file `index.html` di browser, atau
-2. Deploy folder ini ke GitHub Pages
+1. Buka file `index.html` di browser dengan double-click, atau
+2. Jalankan server sederhana dan buka di browser:
+
+```bash
+python -m http.server 8000
+# lalu buka http://localhost:8000
+```
+
+## Contoh penggunaan (hasil dari tombol Generate curl)
+
+```bash
+curl -X POST "https://api.xendit.co/v2/callback_virtual_accounts" -u "<API_KEY>:" -H "Content-Type: application/json" -d '{"external_id":"ext_123","bank_code":"BNI","expected_amount":150000}'
+```
+
+Ganti `<API_KEY>` dengan API Key Xendit Anda.
 
 ## Struktur
-- `index.html` — halaman utama
-- `styles.css` — styling UI
-- `app.js` — logika simulasi payment
+- `index.html` — UI dan form
+- `styles.css` — styling
+- `app.js` — generator curl dan copy-to-clipboard
 
 ## Catatan
-Project ini adalah simulasi frontend, bukan integrasi resmi ke Xendit.
-Tab yang tersedia hanya simulasi FVA.
+Project ini hanya membantu membuat command curl; eksekusi tetap ke Xendit.

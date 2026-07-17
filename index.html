@@ -19,115 +19,52 @@
         <div>
           <span class="badge">Demo Repo</span>
           <h1>Xendit Simulate Payment</h1>
-          <p class="lead">
-            Web app ringan untuk simulasi FVA Xendit via browser. User tinggal isi external ID,
-            nominal, dan bank VA lalu langsung test tanpa curl.
-          </p>
+          <p class="lead">Tool kecil untuk menghasilkan command curl siap-pakai
+            untuk membuat Fixed Virtual Account (FVA) di Xendit.</p>
         </div>
         <div class="hero-actions">
           <button class="btn btn-secondary" id="resetBtn" type="button">Reset Data</button>
           <a class="btn btn-primary" href="https://github.com" target="_blank" rel="noreferrer">Deploy ke GitHub</a>
         </div>
       </section>
+      <section class="grid content-grid">
+        <article class="card panel">
+          <div class="panel-head">
+            <h2>Generate curl untuk Create FVA</h2>
+            <p>Isi API Key Xendit, External ID, dan Amount. Tombol akan menghasilkan command curl siap-pakai.</p>
+          </div>
 
-      <nav class="tab-nav card" aria-label="Tab navigasi">
-        <a class="tab-link" href="#simulate" data-tab-link="simulate">Simulate FVA</a>
-      </nav>
+          <form id="curlForm" class="form">
+            <label>
+              API Key (Xendit)
+              <input type="password" id="apiKey" placeholder="xnd_development_..." required />
+            </label>
+            <label>
+              External ID
+              <input type="text" id="externalId" placeholder="ext_123456" required />
+            </label>
+            <label>
+              Amount
+              <input type="number" id="amount" value="150000" placeholder="150000" min="1000" step="1000" required />
+            </label>
 
-      <section class="tab-panel" data-tab-panel="simulate">
-        <section class="grid stats-grid">
-          <article class="card stat-card">
-            <span class="stat-label">Total Payment</span>
-            <strong id="totalPayments">0</strong>
-          </article>
-          <article class="card stat-card">
-            <span class="stat-label">Paid</span>
-            <strong id="paidPayments">0</strong>
-          </article>
-          <article class="card stat-card">
-            <span class="stat-label">Pending</span>
-            <strong id="pendingPayments">0</strong>
-          </article>
-          <article class="card stat-card">
-            <span class="stat-label">Amount</span>
-            <strong id="totalAmount">Rp0</strong>
-          </article>
-        </section>
-
-        <section class="grid content-grid">
-          <article class="card panel">
-            <div class="panel-head">
-              <h2>Buat Simulasi FVA</h2>
-              <p>Form ini dipakai untuk test payment FVA yang biasa sebelumnya dijalankan via curl.</p>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Generate curl</button>
             </div>
+          </form>
+        </article>
 
-            <form id="paymentForm" class="form">
-              <label>
-                Nama Customer
-                <input type="text" id="customerName" placeholder="Budi Santoso" required />
-              </label>
-              <label>
-                External ID
-                <input type="text" id="orderId" placeholder="ext_123456" required />
-              </label>
-              <label>
-                Amount
-                <input type="number" id="amount" value="150000" placeholder="150000" min="1000" step="1000" required />
-              </label>
-              <label>
-                VA Bank
-                <select id="vaBank">
-                  <option value="bni">BNI</option>
-                  <option value="bca">BCA</option>
-                  <option value="bri">BRI</option>
-                  <option value="mandiri">Mandiri</option>
-                  <option value="permata">Permata</option>
-                </select>
-              </label>
-              <label>
-                Expiry (menit)
-                <input type="number" id="expiryMinutes" value="60" min="5" step="5" required />
-              </label>
-
-              <input type="hidden" id="channel" value="fva" />
-
-              <div class="form-actions">
-                <button class="btn btn-primary" type="submit">Create FVA Payment</button>
-              </div>
-            </form>
-          </article>
-
-          <article class="card panel">
-            <div class="panel-head">
-              <h2>Daftar Payment</h2>
-              <p>Ubah status payment untuk simulasi webhook.</p>
-            </div>
-
-            <div id="paymentList" class="payment-list"></div>
-          </article>
-        </section>
-
-        <section class="grid content-grid bottom-grid">
-          <article class="card panel">
-            <div class="panel-head">
-              <h2>Payload Webhook</h2>
-              <p>Contoh payload yang akan dikirim saat status berubah.</p>
-            </div>
-            <pre id="webhookPayload" class="code-block">{}</pre>
-          </article>
-
-          <article class="card panel">
-            <div class="panel-head">
-              <h2>Info</h2>
-              <p>Simulasi FVA dibuat untuk mempermudah test internal.</p>
-            </div>
-            <ul class="notes">
-              <li>Tanpa dependency external.</li>
-              <li>Cocok untuk GitHub Pages.</li>
-              <li>Data tersimpan di localStorage browser.</li>
-            </ul>
-          </article>
-        </section>
+        <article class="card panel">
+          <div class="panel-head">
+            <h2>Command curl</h2>
+            <p>Salin lalu jalankan di terminal untuk memanggil API Xendit.</p>
+          </div>
+          <pre id="curlOutput" class="code-block"># hasil akan muncul di sini</pre>
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <button class="btn action-btn" id="copyCurl">Copy</button>
+            <a class="btn action-btn" href="https://api.xendit.co/" target="_blank" rel="noreferrer">Xendit API</a>
+          </div>
+        </article>
       </section>
     </main>
 
