@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Simulasi payment Xendit sederhana untuk demo dan GitHub Pages." />
+    <meta name="description" content="Simulasi payment Xendit Fixed Virtual Account untuk test mode." />
     <title>Xendit Simulate Payment</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,56 +19,43 @@
         <div>
           <span class="badge">Demo Repo</span>
           <h1>Xendit Simulate Payment</h1>
-          <p class="lead">Tool kecil untuk menghasilkan command curl siap-pakai
-            untuk membuat Fixed Virtual Account (FVA) di Xendit.</p>
-        </div>
-        <div class="hero-actions">
-          <button class="btn btn-secondary" id="resetBtn" type="button">Reset Data</button>
-          <a class="btn btn-primary" href="https://github.com" target="_blank" rel="noreferrer">Deploy ke GitHub</a>
+          <p class="lead">Simulasikan pembayaran ke Fixed Virtual Account (FVA) Xendit
+            yang sudah ada, langsung dari browser.</p>
         </div>
       </section>
       <section class="grid content-grid">
         <article class="card panel">
           <div class="panel-head">
-            <h2>Generate curl untuk Create FVA</h2>
-            <p>Isi API Key Xendit, External ID, dan Amount. Tombol akan menghasilkan command curl siap-pakai.</p>
+            <h2>Simulate Payment</h2>
+            <p>Isi API Key, External ID FVA, dan Amount, lalu klik Execute.</p>
           </div>
 
-          <form id="curlForm" class="form">
+          <form id="simulateForm" class="form">
             <label>
               API Key (Xendit)
               <input type="password" id="apiKey" placeholder="xnd_development_..." required />
             </label>
             <label>
               External ID
-              <input type="text" id="externalId" placeholder="ext_123456" required />
+              <input type="text" id="externalId" placeholder="b7109f--1784189199973--guide--wuoeg6" required />
             </label>
             <label>
               Amount
-              <input type="number" id="amount" value="150000" placeholder="150000" min="1000" step="1000" required />
+              <input type="number" id="amount" value="150000" placeholder="150000" min="1" step="1" required />
             </label>
 
             <div class="form-actions">
-              <button class="btn btn-primary" type="submit">Generate curl</button>
+              <button class="btn btn-primary" type="submit">Execute</button>
             </div>
           </form>
         </article>
 
         <article class="card panel">
           <div class="panel-head">
-            <h2>Command curl</h2>
-            <p>Salin lalu jalankan di terminal untuk memanggil API Xendit.</p>
+            <h2>Response</h2>
+            <p>Hasil response dari Xendit akan tampil di sini.</p>
           </div>
-          <pre id="curlOutput" class="code-block"># hasil akan muncul di sini</pre>
-          <div style="display:flex;gap:8px;margin-top:10px;">
-            <button class="btn action-btn" id="copyCurl">Copy</button>
-            <button class="btn action-btn" id="execCurl">Execute</button>
-            <a class="btn action-btn" href="https://api.xendit.co/" target="_blank" rel="noreferrer">Xendit API</a>
-          </div>
-          <div style="margin-top:12px;">
-            <strong>Response:</strong>
-            <pre id="curlResponse" class="code-block"># response akan tampil di sini setelah eksekusi</pre>
-          </div>
+          <pre id="responseOutput" class="code-block"># response akan tampil di sini setelah eksekusi</pre>
         </article>
       </section>
     </main>

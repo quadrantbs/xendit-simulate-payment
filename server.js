@@ -6,7 +6,6 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 8000;
-const XENDIT_FVA_ENDPOINT = 'https://api.xendit.co/v2/callback_virtual_accounts';
 
 const MIME = {
   '.html': 'text/html',
@@ -30,19 +29,23 @@ function serveStatic(req, res) {
   });
 }
 
-function proxyToXendit(req, res) {
+function proxySimulatePayment(req, res) {
   let body = '';
   req.on('data', (chunk) => (body += chunk));
   req.on('end', async () => {
     try {
-      const xenditRes = await fetch(XENDIT_FVA_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: req.headers.authorization,
-        },
-        body,
-      });
+      const { external_id, amount } = JSON.parse(body);
+      const xenditRes = await fetch(
+        `https://api.xendit.co/callback_virtual_accounts/external_id=${encodeURIComponent(external_id)}/simulate_payment`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: req.headers.authorization,
+          },
+          body: JSON.stringify({ amount }),
+        }
+      );
       const text = await xenditRes.text();
       res.writeHead(xenditRes.status, { 'Content-Type': 'application/json' });
       res.end(text);
@@ -54,8 +57,8 @@ function proxyToXendit(req, res) {
 }
 
 const server = http.createServer((req, res) => {
-  if (req.method === 'POST' && req.url === '/api/fva') {
-    proxyToXendit(req, res);
+  if (req.method === 'POST' && req.url === '/api/simulate-payment') {
+    proxySimulatePayment(req, res);
     return;
   }
   serveStatic(req, res);
