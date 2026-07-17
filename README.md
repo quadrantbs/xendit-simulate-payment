@@ -27,14 +27,18 @@ node server.js
 
 Dengan cara ini, tombol Execute akan hit `http://localhost:8000/api/fva`, yang diteruskan oleh `server.js` ke Xendit di sisi server (tanpa batasan CORS browser).
 
-### Opsi C — deploy publik dengan tombol Execute aktif (Cloudflare Pages)
-Supaya orang lain juga bisa buka link deployment dan langsung pakai tombol Execute (tanpa perlu jalanin apa-apa di komputer sendiri), deploy repo ini ke **Cloudflare Pages**, bukan GitHub Pages. Cloudflare Pages bisa hosting file statis sekaligus menjalankan `functions/api/fva.js` sebagai proxy serverless gratis.
+### Opsi C — deploy publik dengan tombol Execute aktif (Cloudflare Workers)
+Supaya orang lain juga bisa buka link deployment dan langsung pakai tombol Execute (tanpa perlu jalanin apa-apa di komputer sendiri), repo ini sudah dilengkapi `wrangler.toml` + `worker.js` untuk deploy sebagai **Cloudflare Worker** dengan static assets.
 
-1. Push repo ini ke GitHub/GitLab.
-2. Di dashboard [Cloudflare Pages](https://pages.cloudflare.com/), pilih **Create a project** → **Connect to Git** → pilih repo ini.
-3. Build settings: kosongkan **Build command**, set **Build output directory** ke `/` (root, karena tidak ada proses build).
-4. Deploy. Cloudflare otomatis mendeteksi folder `functions/` dan menjalankan `functions/api/fva.js` di path `/api/fva`.
-5. Buka URL `*.pages.dev` yang diberikan — tombol Execute akan langsung berfungsi untuk siapa saja yang membuka link tersebut, tanpa CORS error dan tanpa perlu menjalankan server sendiri.
+`worker.js` menyajikan file statis (`index.html`, `styles.css`, `app.js`) sekaligus menangani route `POST /api/fva` sebagai proxy serverless ke Xendit, jadi request Execute tidak lagi kena CORS.
+
+Cara deploy (dashboard Cloudflare, tanpa install apa pun):
+1. Push repo ini ke GitHub.
+2. Di dashboard Cloudflare → **Compute (Workers)** → **Create** → **Connect to Git** → pilih repo ini.
+3. Cloudflare akan otomatis mendeteksi `wrangler.toml` dan men-deploy `worker.js` beserta assets-nya.
+4. Buka URL `*.workers.dev` (atau custom domain) yang diberikan — tombol Execute akan langsung berfungsi untuk siapa saja yang membuka link tersebut.
+
+Setiap `git push` ke branch yang di-connect akan otomatis re-deploy.
 
 ## Contoh penggunaan (hasil dari tombol Generate curl)
 
