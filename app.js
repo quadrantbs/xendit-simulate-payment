@@ -72,7 +72,7 @@ execBtn.addEventListener('click', async () => {
   copyBtn.disabled = true;
 
   try {
-    const res = await fetch(XENDIT_FVA_ENDPOINT, {
+    const res = await fetch('/api/fva', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ execBtn.addEventListener('click', async () => {
     curlResponse.textContent = `HTTP ${res.status} ${res.statusText}\n\n${out}`;
   } catch (err) {
     console.error(err);
-    curlResponse.textContent = `Request failed: ${err.message || err}.\n\nNote: this may be caused by CORS blocking direct requests from the browser. If so, use the generated curl in your terminal or run the request from a server-side proxy.`;
+    curlResponse.textContent = `Request failed: ${err.message || err}.\n\nNote: Execute calls a local proxy at /api/fva to avoid CORS. Make sure you started the app with "node server.js" (not by opening index.html directly), then reload the page from http://localhost:8000.`;
   } finally {
     execBtn.disabled = false;
     copyBtn.disabled = false;
