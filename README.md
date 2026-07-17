@@ -30,3 +30,5 @@ Ganti `<API_KEY>` dengan API Key Xendit Anda.
 
 ## Catatan
 Project ini hanya membantu membuat command curl; eksekusi tetap ke Xendit.
+Untuk kenyamanan ada tombol `Execute` yang akan mencoba menjalankan request langsung dari browser.
+Perhatian: banyak API tidak mengizinkan cross-origin requests dari browser (CORS), sehingga eksekusi dari UI mungkin gagal dengan error CORS — jika itu terjadi, gunakan command `curl` yang dihasilkan di terminal atau jalankan dari server Anda.
