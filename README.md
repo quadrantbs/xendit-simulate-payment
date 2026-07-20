@@ -1,11 +1,11 @@
 # Xendit API Tester
 
-Client kecil untuk bikin request bebas ke API Xendit (test mode), langsung dari browser.
+A small client for making arbitrary requests against the Xendit API (test mode), right from the browser.
 
-## Fitur
-- Atur sendiri: `Method`, `URL`, `Headers`, `Auth` (Basic/Bearer/None), dan `Body` (JSON).
-- Tombol `Send` langsung memanggil Xendit dan menampilkan status + response-nya di halaman.
-- Contoh default sudah diisi untuk endpoint **simulate payment** FVA:
+## Features
+- Set it all yourself: `Method`, `URL`, `Headers`, `Auth` (Basic/Bearer/None), and `Body` (JSON).
+- The `Send` button calls Xendit directly and shows the status + response on the page.
+- A default example is pre-filled for the **simulate payment** FVA endpoint:
   ```
   POST https://api.xendit.co/callback_virtual_accounts/external_id={external_id}/simulate_payment
   Authorization: Basic base64(API_KEY:)
@@ -13,36 +13,36 @@ Client kecil untuk bikin request bebas ke API Xendit (test mode), langsung dari 
 
   { "amount": 150000 }
   ```
-  Tinggal ganti Method/URL/Headers/Body sesuai endpoint Xendit lain yang mau dicoba.
+  Just swap the Method/URL/Headers/Body to try any other Xendit endpoint.
 
-## Keamanan proxy
-Karena request dikirim dari browser, harus lewat proxy (Node lokal / Cloudflare Worker) supaya tidak kena CORS. Proxy ini **hanya meneruskan request ke `api.xendit.co`** — request ke domain lain otomatis ditolak (400), supaya tidak jadi open-proxy sembarangan.
+## Proxy security
+Since requests are sent from the browser, they have to go through a proxy (local Node / Cloudflare Worker) to avoid CORS. This proxy **only forwards requests to `api.xendit.co`** — requests to any other domain are automatically rejected (400), so it can't be abused as an open proxy.
 
-## Cara menjalankan
+## Running it
 
-### Opsi A — lokal (Node)
+### Option A — locally (Node)
 ```bash
 node server.js
-# lalu buka http://localhost:8000
+# then open http://localhost:8000
 ```
-`server.js` menyajikan file statis sekaligus meneruskan `POST /api/proxy` ke Xendit di sisi server.
+`server.js` serves the static files and also forwards `POST /api/proxy` to Xendit on the server side.
 
-### Opsi B — deploy publik (Cloudflare Workers)
-Repo ini sudah dilengkapi `wrangler.toml` + `worker.js` untuk deploy sebagai Cloudflare Worker dengan static assets, supaya siapa pun bisa buka link deployment dan langsung pakai tombol Send tanpa menjalankan apa pun di komputer sendiri.
+### Option B — public deployment (Cloudflare Workers)
+This repo already includes `wrangler.toml` + `worker.js` to deploy as a Cloudflare Worker with static assets, so anyone can open the deployment link and use the Send button right away without running anything locally.
 
-1. Push repo ini ke GitHub.
-2. Di dashboard Cloudflare → **Compute (Workers)** → **Create** → **Connect to Git** → pilih repo ini.
-3. Cloudflare otomatis mendeteksi `wrangler.toml` dan men-deploy `worker.js` beserta assets-nya.
-4. Buka URL `*.workers.dev` (atau custom domain) — tombol Send langsung berfungsi.
+1. Push this repo to GitHub.
+2. In the Cloudflare dashboard → **Compute (Workers)** → **Create** → **Connect to Git** → select this repo.
+3. Cloudflare automatically detects `wrangler.toml` and deploys `worker.js` along with its assets.
+4. Open the `*.workers.dev` URL (or a custom domain) — the Send button works right away.
 
-Setiap `git push` ke branch yang di-connect akan otomatis re-deploy.
+Every `git push` to the connected branch triggers an automatic re-deploy.
 
-## Struktur
-- `index.html` — UI request builder (method/url/headers/auth/body) + panel response
+## Structure
+- `index.html` — request builder UI (method/url/headers/auth/body) + response panel
 - `styles.css` — styling
-- `app.js` — logic build request, fetch ke proxy, render response
-- `server.js` — proxy lokal (Node), whitelist host `api.xendit.co`
-- `worker.js` / `wrangler.toml` — proxy serverless (Cloudflare Workers), whitelist host sama
+- `app.js` — logic for building the request, calling the proxy, rendering the response
+- `server.js` — local proxy (Node), whitelists the `api.xendit.co` host
+- `worker.js` / `wrangler.toml` — serverless proxy (Cloudflare Workers), same host whitelist
 
-## Catatan
-Ini untuk test mode — gunakan API Key `xnd_development_...`, bukan API Key production.
+## Note
+This is for test mode — use an `xnd_development_...` API key, not a production API key.

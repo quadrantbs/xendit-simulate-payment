@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="id">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Client kecil untuk test API Xendit, langsung dari browser." />
+    <meta name="description" content="A small client for testing the Xendit API, right from the browser." />
     <title>Xendit API Tester</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,8 +19,8 @@
         <div>
           <span class="badge">Demo Repo</span>
           <h1>Xendit API Tester</h1>
-          <p class="lead">Bikin request bebas ke API Xendit (test mode) langsung dari browser —
-            atur method, URL, header, auth, dan body sendiri.</p>
+          <p class="lead">Build any request against the Xendit API (test mode) right from the browser —
+            set the method, URL, headers, auth, and body yourself.</p>
         </div>
       </section>
 
@@ -28,7 +28,7 @@
         <article class="card panel">
           <div class="panel-head">
             <h2>Request</h2>
-            <p>Hanya request ke <code>api.xendit.co</code> yang diteruskan oleh proxy.</p>
+            <p>Only requests to <code>api.xendit.co</code> are forwarded by the proxy.</p>
           </div>
 
           <form id="requestForm" class="request-form">
@@ -89,9 +89,9 @@
         <article class="card panel">
           <div class="panel-head">
             <h2>Response</h2>
-            <p id="responseMeta">Belum ada request.</p>
+            <p id="responseMeta">No request yet.</p>
           </div>
-          <pre id="responseOutput" class="code-block"># response akan tampil di sini setelah Send</pre>
+          <pre id="responseOutput" class="code-block"># the response will appear here after you click Send</pre>
         </article>
       </section>
     </main>

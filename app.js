@@ -55,7 +55,7 @@ requestForm.addEventListener('submit', async (e) => {
   const bodyText = bodyEl.value.trim();
 
   if (!url) {
-    responseOutput.textContent = 'Isi URL request.';
+    responseOutput.textContent = 'Enter the request URL.';
     return;
   }
 
@@ -104,7 +104,7 @@ requestForm.addEventListener('submit', async (e) => {
   } catch (err) {
     console.error(err);
     responseMeta.textContent = 'Request failed';
-    responseOutput.textContent = `Request failed: ${err.message || err}.\n\nNote: pastikan proxy jalan (node server.js secara lokal, atau deployment Cloudflare Worker).`;
+    responseOutput.textContent = `Request failed: ${err.message || err}.\n\nNote: make sure the proxy is running (node server.js locally, or a Cloudflare Worker deployment).`;
   } finally {
     submitBtn.disabled = false;
   }
